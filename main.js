@@ -3,11 +3,12 @@
 // This app will not do anything else, and a public API will be written to handle the data on ben's server (fuggolol). Sara's website will access this API to get the data. the API server will run this script daily to get up to date movie info.
 // The JSON format will contain the name of the event, the date, the showtime and the theatre location.
 // Might make this run locally and then be uploaded to fuggolol by a human. Will see if gcloud instances can run it.
+
 const axios = require('axios');
-
-
 const cheerio = require('cheerio');
+const fs = require('fs');
 
+let le_open_page = fs.readFileSync("theatreinfo.json", "utf-8");
 async function scraperTheRevue() {
     let location = "The Revue"
     let tempJsonArray = []
@@ -15,24 +16,29 @@ async function scraperTheRevue() {
     const response = await axios.get(url);
     const $ = cheerio.load(response.data);
 
-    const elements = $('div.wpt_listing');
+    const table = $('td.InsideDate');
 
-    elements.each((i, node) => {
-        let date = $(node).find(".wpt_listing_group").text();
-        let events = $(node).find('.wp_theatre_event');
+    table.each((i, node) => {
+        let events = $(node).find('.Item');
+        let date = $(node).find(".Date");
+        console.log(date.text())
         events.each((i, event) => {
-            let time = $(event).find(".wp_theatre_event_starttime").text();
-            let title = $(event).find(".wp_theatre_event_title").text();
+            let title = $(event).find(".Name").text();
+            let time = $(event).find(".Time").text();
             var tempJson = {
                 "Location": location,
-                "Date": date,
+                "Date": date.text(),
                 "Time": time,
                 "Title": title
             }
             tempJsonArray.push(tempJson)
+            console.log(tempJson)
         })
-        // we are now going to parse the "event" variable and log the time/movie HREF, then we are eventually going to return it as JSON, then we move on to next.
-    });
+    })
+
+    //     // we are now going to parse the "event" variable and log the time/movie HREF, then we are eventually going to return it as JSON, then we move on to next.
+    // });
+
     // console.log(tempJsonArray)
 }
 async function scraperParadiseTheatre() {
@@ -68,7 +74,7 @@ async function scraperHotDocs() {
     let tempJsonArray = []
     url = 'https://boxoffice.hotdocs.ca/websales/feed.ashx?guid=e23c888b-cc14-4afd-a8a3-f4b7d24cc9cf&format=json&showslist=true&kw=KenticoInclude&cphide=false&fulldescription=true&withmedia=true&v=5'
     const response = await axios.get(url);
-    json_array = response.data.ArrayOfShows;
+    let json_array = response.data.ArrayOfShows;
     json_array.forEach((element) => {
         if (element.Folder === "Cinema Films") {
             element.CurrentShowings.forEach((showing) => {
@@ -103,6 +109,7 @@ async function scraperHotDocs() {
         // tempJsonArray.push(tempJson)
     // console.log(tempJsonArray);
 }
+
 
 // scraperTheRevue();
 // scraperParadiseTheatre();
