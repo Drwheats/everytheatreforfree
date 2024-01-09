@@ -8,6 +8,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const fs = require('fs');
 
+let permanentJsonArray = [];
 let le_open_page = fs.readFileSync("theatreinfo.json", "utf-8");
 async function scraperTheRevue() {
     let location = "The Revue"
@@ -21,7 +22,6 @@ async function scraperTheRevue() {
     table.each((i, node) => {
         let events = $(node).find('.Item');
         let date = $(node).find(".Date");
-        console.log(date.text())
         events.each((i, event) => {
             let title = $(event).find(".Name").text();
             let time = $(event).find(".Time").text();
@@ -32,14 +32,10 @@ async function scraperTheRevue() {
                 "Title": title
             }
             tempJsonArray.push(tempJson)
-            console.log(tempJson)
         })
     })
+    permanentJsonArray.push(tempJsonArray);
 
-    //     // we are now going to parse the "event" variable and log the time/movie HREF, then we are eventually going to return it as JSON, then we move on to next.
-    // });
-
-    // console.log(tempJsonArray)
 }
 async function scraperParadiseTheatre() {
     let location = "Paradise Theatre"
@@ -66,8 +62,7 @@ async function scraperParadiseTheatre() {
         tempJsonArray.push(tempJson)
 
     })
-
-    console.log(tempJsonArray);
+    permanentJsonArray.push(tempJsonArray);
 }
 async function scraperHotDocs() {
     let location = "Hot Docs"
@@ -96,7 +91,7 @@ async function scraperHotDocs() {
 
     }
     )
-    console.log(tempJsonArray)
+    permanentJsonArray.push(tempJsonArray);
 
 
 
@@ -110,7 +105,14 @@ async function scraperHotDocs() {
     // console.log(tempJsonArray);
 }
 
+const doAllScrapes = async () => {
+    const result = await scraperTheRevue();
+    const result2 = await scraperParadiseTheatre();
+    const result3 = await scraperHotDocs();
+    // console.log(permanentJsonArray);
+    console.log("writing to txt file : ")
+    let myJSON = JSON.stringify(permanentJsonArray);
+    console.log(myJSON)
+}
 
-// scraperTheRevue();
-// scraperParadiseTheatre();
-scraperHotDocs();
+doAllScrapes();
