@@ -11,7 +11,7 @@ const fs = require("fs");
 const writePath = './theatreinfo.json'
 let permanentJsonArray = [];
 // let todayDate = new Date().toISOString().split('T')[0];
-function convertDateStringToFormatPara(inputString, year) {
+function convertDateStringToFormatRevue(inputString, year) {
     // Define arrays for mapping month names and day names
     const monthNames = [
         "January", "February", "March", "April", "May", "June",
@@ -33,7 +33,7 @@ function convertDateStringToFormatPara(inputString, year) {
 
     return formattedDate;
 }
-function convertDateStringToFormatRevue(inputString, year) {
+function convertDateStringToFormatPara(inputString, year) {
     // Define arrays for mapping month names and day names
     const monthNames = [
         "January", "February", "March", "April", "May", "June",
