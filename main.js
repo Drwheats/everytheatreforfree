@@ -11,6 +11,51 @@ const fs = require("fs");
 const writePath = './theatreinfo.json'
 let permanentJsonArray = [];
 // let todayDate = new Date().toISOString().split('T')[0];
+function convertDateStringToFormatPara(inputString, year) {
+    // Define arrays for mapping month names and day names
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+    // Split the input string into an array of words
+    const words = inputString.split(' ');
+
+    // Extract day, month, and year from the array
+    const day = parseInt(words[2].replace(/\D/g, ''), 10);
+    const month = monthNames.indexOf(words[1]) + 1; // Months are zero-based in JavaScript Date object
+
+    // Create a new Date object with extracted values
+    const convertedDate = new Date(2024, month, day);
+    // Format the date as "YYYY-MM-DD"
+    const formattedDate = convertedDate.toISOString().split('T')[0];
+
+    return formattedDate;
+}
+function convertDateStringToFormatRevue(inputString, year) {
+    // Define arrays for mapping month names and day names
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+    // Split the input string into an array of words
+    const words = inputString.split(' ');
+
+    // Extract day, month, and year from the array
+    const day = parseInt(words[2].replace(/\D/g, ''), 10);
+    const month = monthNames.indexOf(words[1]) + 1; // Months are zero-based in JavaScript Date object
+
+    // Create a new Date object with extracted values
+    const convertedDate = new Date(2024, month - 1, day);
+    console.log(year)
+    // Format the date as "YYYY-MM-DD"
+    const formattedDate = convertedDate.toISOString().split('T')[0];
+
+    return formattedDate;
+}
 
 function writeJsonToFile() {
     writeFile(writePath, JSON.stringify(permanentJsonArray, null, 2), (error) => {
@@ -38,7 +83,7 @@ async function scraperTheRevue() {
             let time = $(event).find(".Time").text();
             let tempJson = {
                 "Location": location,
-                "Date": date.text(),
+                "Date": convertDateStringToFormatRevue(date.text(), 2024),
                 "Time": time,
                 "Title": title
             }
@@ -151,7 +196,7 @@ async function scraperParadiseTheatre() {
         date = date[0].trim()
         let tempJson = {
             "Location": location,
-            "Date": date,
+            "Date": convertDateStringToFormatPara(date, 2024),
             "Time": time,
             "Title": title
         }
@@ -194,7 +239,6 @@ function tiffJsonChecker() {
     const fs = require('fs');
     let tiffData = fs.readFileSync('tiffjson.json')
     tiffData = JSON.parse(tiffData);
-    console.log(tiffData[0]);
     for (let i = 0; i < tiffData.length; i++) {
         for (let j = 0; j < tiffData[i].scheduleItems.length; j++) {
             try {
@@ -209,7 +253,7 @@ function tiffJsonChecker() {
                 tempJsonArray.push(tem);
             }
             catch (e) {
-                console.log('i love movies :DDD: DD');
+                console.log('catching a normal error');
             }
         }
     }
@@ -217,12 +261,13 @@ function tiffJsonChecker() {
 }
 const doAllScrapes = async () => {
     // yea i know
-    tiffJsonChecker();
+    // tiffJsonChecker();
     const result = await scraperTheRevue();
     const result2 = await scraperParadiseTheatre();
-    const result3 = await scraperHotDocs();
-    const result4 = await scraperImagineCarlton();
-    const result5 = await scraperImagineFront();
+    // const result3 = await scraperHotDocs();
+    // const result4 = await scraperImagineCarlton();
+    // const result5 = await scraperImagineFront();
+
 
     console.log("writing to txt file : ")
     let myJSON = JSON.stringify(permanentJsonArray);
